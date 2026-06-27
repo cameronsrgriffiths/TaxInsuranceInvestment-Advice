@@ -1,10 +1,5 @@
 # CLAUDE.md
 
-## Project
-
-**TaxInsuranceInvestment-Advice** — a tax, insurance, and investment advice
-app. Early stage; document architecture and conventions here as they emerge.
-
 ## Responses
 
 - Keep every response to **1–3 sentences**. Go longer only when the task can't
