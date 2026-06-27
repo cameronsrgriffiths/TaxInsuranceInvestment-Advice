@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const base = import.meta.env.BASE_URL;
+const link = (p = '') => (`${base}/${p}`).replace(/\/{2,}/g, '/');
+
+const values = [
+  { title: 'Independent', body: 'We are not tied to any provider. Our recommendations are based only on what is right for you.' },
+  { title: 'Transparent', body: 'Clear, fee-only pricing with no hidden commissions. You always know what you pay and why.' },
+  { title: 'Long-term', body: 'We build relationships, not transactions — guiding you through every stage of life.' },
+];
+---
+
+<Layout path="about" title="About — Tax, Insurance & Investment Advice">
+  <section class="page-head">
+    <div class="container">
+      <p class="eyebrow">About us</p>
+      <h1>Trusted advice, built around you.</h1>
+      <p class="lead">
+        We started this practice on a simple belief: that good financial advice
+        should be clear, independent, and genuinely on your side.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container about-grid">
+      <div>
+        <h2>Our approach</h2>
+        <p>
+          For too many people, money feels complicated and scattered — a pension
+          here, an insurance policy there, a tax bill that always seems higher than
+          it should be. We exist to bring order to that.
+        </p>
+        <p>
+          By looking at tax, protection, and investments as one connected picture,
+          we help you make decisions with confidence and avoid costly gaps and
+          overlaps. No jargon, no pressure — just honest guidance and a plan you
+          actually understand.
+        </p>
+        <a href={link('contact')} class="btn btn--outline">Get in touch</a>
+      </div>
+      <aside class="about-card">
+        <h3>Why clients choose us</h3>
+        <ul>
+          <li>Whole-of-market, independent recommendations</li>
+          <li>Transparent, fee-only pricing</li>
+          <li>One point of contact for your whole plan</li>
+          <li>Ongoing reviews, not one-off sales</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--mist">
+    <div class="container">
+      <h2 class="center">What we stand for</h2>
+      <div class="grid grid--3" style="margin-top: 2rem;">
+        {values.map((v) => (
+          <article class="card">
+            <h3>{v.title}</h3>
+            <p>{v.body}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-head { padding: 4rem 0 1rem; }
+  .about-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 2.5rem; align-items: start;
+  }
+  .about-grid .btn { margin-top: 1rem; }
+  .about-card {
+    background: var(--navy); color: rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius); padding: 1.75rem;
+  }
+  .about-card h3 { color: var(--white); }
+  .about-card ul { margin: 0; padding-left: 1.1rem; }
+  .about-card li { margin-bottom: 0.6rem; }
+  @media (max-width: 820px) {
+    .about-grid { grid-template-columns: 1fr; }
+  }
+</style>
