@@ -1,57 +1,78 @@
-# Tax · Insurance · Investment Advice
+# insurance
 
-A small, fast marketing website for a financial advisory practice, built with
-[Astro](https://astro.build). It ships as static HTML/CSS (zero client-side
-JavaScript by default), so it's cheap and easy to host anywhere.
+A private personal-tools web app: a public landing page plus login-gated tools
+(notes, an AI chat), built on **React Router v7** and deployed to **Cloudflare
+Workers** with a **D1** database.
 
-## Pages
+## Stack
 
-- **Home** (`/`) — hero, services overview, stats, call to action
-- **Services** (`/services`) — detailed services and a four-step process
-- **About** (`/about`) — approach, values, why clients choose us
-- **Contact** (`/contact`) — contact form (Formspree-ready) and details
+- **Framework:** React Router v7 (framework mode, SSR)
+- **Host:** Cloudflare Workers (push-to-`main` deploys; custom domains)
+- **Database:** Cloudflare D1 (SQLite)
+- **Auth:** email + password, hashed with PBKDF2 (WebCrypto); DB-backed sessions
+- **AI:** Anthropic Claude API, called server-side from the Worker
 
-## Local development
+## Project layout
 
-```sh
-npm install      # install dependencies
-npm run dev      # start dev server at http://localhost:4321
-npm run build    # build the production site into ./dist
-npm run preview  # preview the production build locally
+```
+app/
+  root.tsx              app shell
+  routes.ts             route table
+  routes/               pages (home, login, signup, logout, dashboard, notes, chat)
+  lib/
+    auth.server.ts      password hashing + user lookup
+    session.server.ts   cookie + DB-backed sessions, requireUser()
+    anthropic.server.ts Claude API call (key stays server-side)
+migrations/             D1 SQL migrations
+workers/app.ts          Cloudflare Worker entry (SSR handler)
+wrangler.jsonc          Cloudflare config (D1 binding, secrets)
 ```
 
-## Hosting
+## First-time setup
 
-### GitHub Pages (configured)
+```sh
+npm install
 
-A workflow at `.github/workflows/deploy.yml` builds and deploys to GitHub Pages
-on every push to `main`. To turn it on:
+# 1. Create the D1 database, then paste the returned id into wrangler.jsonc
+npm run db:create
 
-1. Push these files to `main`.
-2. In the repo, go to **Settings → Pages → Build and deployment → Source** and
-   select **GitHub Actions**.
-3. The site goes live at
-   `https://cameronsrgriffiths.github.io/taxinsuranceinvestment-advice/`.
+# 2. Apply the schema (local + remote)
+npm run db:migrate:local
+npm run db:migrate
 
-The base path is set in `astro.config.mjs` (`base: '/taxinsuranceinvestment-advice'`)
-so links resolve correctly under the project subpath.
+# 3. Local AI key — copy the example and fill it in
+cp .dev.vars.example .dev.vars   # then edit ANTHROPIC_API_KEY
 
-### Netlify / Vercel / custom domain
+# 4. Run locally
+npm run dev
+```
 
-These hosts auto-detect Astro — connect the repo and they build with
-`npm run build` (output dir `dist`). If you use them (or a custom domain at the
-site root), set `base: '/'` in `astro.config.mjs` and update `site` to your
-domain.
+Get an Anthropic API key from <https://console.anthropic.com> (this is separate
+from a Claude.ai subscription — a subscription cannot be used for API access).
 
-## Contact form
+## Deploy
 
-The contact form posts to [Formspree](https://formspree.io). Replace
-`your-form-id` in `src/pages/contact.astro` with your own form endpoint, or swap
-the `action` for another form backend. The "Email us" link works as a fallback
-in the meantime.
+```sh
+# One-time: set the production secret
+wrangler secret put ANTHROPIC_API_KEY
 
-## Disclaimer
+# Deploy
+npm run deploy
+```
 
-Site copy is placeholder marketing content for demonstration. Replace contact
-details, statistics, and any regulatory information with your own before going
-live, and ensure all financial-promotion and compliance requirements are met.
+### Continuous deploy
+
+`.github/workflows/deploy.yml` deploys on every push to `main`. Add two repo
+secrets: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. (Alternatively,
+connect the repo in the Cloudflare dashboard for git-based deploys.)
+
+### Custom domain
+
+In the Cloudflare dashboard → your Worker → **Settings → Domains & Routes**, add
+a custom domain. Easiest if the domain's DNS is already on Cloudflare.
+
+## Adding tools
+
+Each tool is a route file under `app/routes/` plus an entry in `app/routes.ts`.
+Put login-gated tools inside the `app-layout` group — its loader runs
+`requireUser` for everything nested under it. Public pages go at the top level.
