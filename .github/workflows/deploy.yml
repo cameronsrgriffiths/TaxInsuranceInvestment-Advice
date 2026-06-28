@@ -8,23 +8,48 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Ensure D1 database exists and resolve its id
+        run: |
+          # Create the database if it doesn't exist yet (ignore "already exists").
+          npx wrangler d1 create insurance || true
+          # Resolve the database id by name.
+          DB_ID="$(npx wrangler d1 info insurance --json 2>/dev/null | jq -r '.uuid // empty')"
+          if [ -z "$DB_ID" ]; then
+            DB_ID="$(npx wrangler d1 list --json | jq -r '.[] | select(.name=="insurance") | .uuid')"
+          fi
+          if [ -z "$DB_ID" ]; then
+            echo "Could not resolve the D1 database id." >&2
+            exit 1
+          fi
+          echo "DB_ID=$DB_ID" >> "$GITHUB_ENV"
+          echo "Resolved D1 database id."
+
+      - name: Wire the database id into wrangler config
+        run: sed -i "s/REPLACE_WITH_DATABASE_ID/${DB_ID}/" wrangler.jsonc
+
       - name: Apply D1 migrations
         run: npx wrangler d1 migrations apply insurance --remote
+
+      - name: Set the Anthropic API key secret
+        run: printf '%s' "${ANTHROPIC_API_KEY}" | npx wrangler secret put ANTHROPIC_API_KEY
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
       - name: Build and deploy
         run: npm run deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
