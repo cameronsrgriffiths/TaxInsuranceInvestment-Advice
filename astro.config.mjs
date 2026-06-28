@@ -9,5 +9,7 @@ import { defineConfig } from 'astro/config';
 // for all internal links, so updating these two values is all that's required.
 export default defineConfig({
   site: 'https://cameronsrgriffiths.github.io',
-  base: '/taxinsuranceinvestment-advice',
+  // Must match the repository name's exact casing — GitHub Pages serves the
+  // project site at /TaxInsuranceInvestment-Advice/ (case-sensitive path).
+  base: '/TaxInsuranceInvestment-Advice',
 });
