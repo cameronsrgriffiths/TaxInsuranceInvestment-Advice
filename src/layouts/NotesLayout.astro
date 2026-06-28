@@ -1,0 +1,188 @@
+---
+import '../styles/global.css';
+
+const base = import.meta.env.BASE_URL;
+const link = (p = '') => (`${base}/${p}`).replace(/\/{2,}/g, '/');
+const faviconHref = `${base}/favicon.svg`.replace(/\/{2,}/g, '/');
+const year = new Date().getFullYear();
+
+const {
+  title = 'Notes',
+  description = 'Personal notes on tax, insurance, and investments.',
+  updated = '',
+  tag = '',
+} = Astro.props;
+
+const pageTitle = title === 'Notes' ? 'Notes' : `${title} — Notes`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <!-- Personal notes: keep out of search indexes. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href={faviconHref} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <header class="notes-header">
+      <div class="container notes-header__inner">
+        <a class="notes-brand" href={link('notes')}>
+          <span class="notes-brand__mark">N</span>
+          <span class="notes-brand__text">Notes</span>
+        </a>
+        <nav class="notes-nav">
+          <a href={link('notes')}>All notes</a>
+          <a href={link('')}>Main site ↗</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="notes-main">
+      <div class="container notes-container">
+        <article class="prose">
+          <a class="notes-back" href={link('notes')}>← All notes</a>
+          <h1>{title}</h1>
+          {(updated || tag) && (
+            <p class="notes-meta">
+              {tag && <span class="notes-tag">{tag}</span>}
+              {updated && <span>Updated {updated}</span>}
+            </p>
+          )}
+          <slot />
+        </article>
+      </div>
+    </main>
+
+    <footer class="notes-footer">
+      <div class="container">
+        <p>
+          Personal notes &middot; {year}. For my own reference only — not advice,
+          and possibly out of date. Check primary sources before acting.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .notes-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: saturate(180%) blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .notes-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .notes-brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; }
+  .notes-brand__mark {
+    display: grid;
+    place-items: center;
+    width: 30px; height: 30px;
+    color: var(--navy);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    font-size: 0.95rem;
+  }
+  .notes-brand__text { color: var(--navy); }
+  .notes-nav { display: flex; gap: 1.5rem; }
+  .notes-nav a { font-weight: 500; color: var(--slate); font-size: 0.95rem; }
+  .notes-nav a:hover { color: var(--navy); }
+
+  .notes-main { padding: 3rem 0 4rem; }
+  .notes-container { max-width: 760px; }
+
+  .notes-back { font-size: 0.9rem; color: var(--slate); }
+  .notes-back:hover { color: var(--gold); }
+
+  .notes-meta {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+    color: var(--slate);
+    font-size: 0.85rem;
+    margin: -0.25rem 0 1.75rem;
+  }
+  .notes-tag {
+    background: rgba(194, 161, 77, 0.14);
+    color: var(--gold);
+    font-weight: 600;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem;
+  }
+
+  /* Prose styling for note bodies */
+  .prose { color: var(--ink); }
+  .prose h1 { margin-bottom: 0.4rem; }
+  .prose :global(h2) {
+    margin: 2.25rem 0 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .prose :global(h3) { margin: 1.5rem 0 0.5rem; }
+  .prose :global(p) { color: var(--ink); }
+  .prose :global(ul), .prose :global(ol) { padding-left: 1.25rem; margin: 0 0 1rem; }
+  .prose :global(li) { margin: 0.35rem 0; }
+  .prose :global(li::marker) { color: var(--gold); }
+  .prose :global(a) { color: var(--navy); text-decoration: underline; text-underline-offset: 2px; }
+  .prose :global(a:hover) { color: var(--gold); }
+  .prose :global(blockquote) {
+    margin: 1.25rem 0;
+    padding: 0.5rem 1.25rem;
+    border-left: 3px solid var(--gold);
+    background: var(--mist);
+    color: var(--slate);
+    border-radius: 0 8px 8px 0;
+  }
+  .prose :global(code) {
+    background: var(--mist);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.9em;
+  }
+  .prose :global(pre) {
+    background: var(--navy);
+    color: #e8edf5;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin: 0 0 1.25rem;
+  }
+  .prose :global(pre code) { background: none; border: 0; padding: 0; color: inherit; }
+  .prose :global(table) { border-collapse: collapse; width: 100%; margin: 0 0 1.25rem; }
+  .prose :global(th), .prose :global(td) {
+    border: 1px solid var(--line);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+  .prose :global(th) { background: var(--mist); }
+  .prose :global(hr) { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
+
+  .notes-footer {
+    border-top: 1px solid var(--line);
+    padding: 2rem 0;
+    color: var(--slate);
+  }
+  .notes-footer p { margin: 0; font-size: 0.85rem; max-width: 70ch; }
+</style>
