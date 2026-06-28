@@ -1,0 +1,181 @@
+---
+import '../../styles/global.css';
+
+const base = import.meta.env.BASE_URL;
+const link = (p = '') => (`${base}/${p}`).replace(/\/{2,}/g, '/');
+const faviconHref = `${base}/favicon.svg`.replace(/\/{2,}/g, '/');
+const year = new Date().getFullYear();
+
+// Hand-curated index. Add an entry here when you add a new note page in
+// src/pages/notes/. Newest first.
+const notes = [
+  {
+    slug: 'about-this-repo',
+    title: 'About this repository',
+    summary:
+      'What lives in this repo, how the site is built and deployed, and where these notes fit in.',
+    tag: 'Repo',
+    updated: '28 Jun 2026',
+  },
+  {
+    slug: 'tax-planning',
+    title: 'Tax planning — working notes',
+    summary:
+      'Allowances, timing, and the levers worth revisiting each year. My running shorthand on tax.',
+    tag: 'Tax',
+    updated: '28 Jun 2026',
+  },
+  {
+    slug: 'insurance',
+    title: 'Insurance — cover types & questions',
+    summary:
+      'The main protection products, what each is for, and the questions to ask before buying.',
+    tag: 'Insurance',
+    updated: '28 Jun 2026',
+  },
+  {
+    slug: 'investing',
+    title: 'Investing — principles I keep returning to',
+    summary:
+      'Diversification, cost, risk, and time horizon — the durable ideas, minus the noise.',
+    tag: 'Investments',
+    updated: '28 Jun 2026',
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Personal notes on tax, insurance, and investments." />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href={faviconHref} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Notes</title>
+  </head>
+  <body>
+    <header class="notes-header">
+      <div class="container notes-header__inner">
+        <a class="notes-brand" href={link('notes')}>
+          <span class="notes-brand__mark">N</span>
+          <span class="notes-brand__text">Notes</span>
+        </a>
+        <nav class="notes-nav">
+          <a href={link('notes')}>All notes</a>
+          <a href={link('')}>Main site ↗</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="notes-main">
+      <div class="container notes-container">
+        <p class="eyebrow">Personal · Unlisted</p>
+        <h1>My notes</h1>
+        <p class="lead">
+          A private-ish scratchpad for this repository and the subject in general —
+          tax, insurance, and investments. Notes to my future self, written plainly.
+        </p>
+
+        <ul class="note-list">
+          {notes.map((n) => (
+            <li class="note-card">
+              <a href={link(`notes/${n.slug}`)} class="note-card__link">
+                <div class="note-card__meta">
+                  <span class="notes-tag">{n.tag}</span>
+                  <span class="note-card__date">Updated {n.updated}</span>
+                </div>
+                <h2 class="note-card__title">{n.title}</h2>
+                <p class="note-card__summary">{n.summary}</p>
+                <span class="note-card__more">Read note →</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </main>
+
+    <footer class="notes-footer">
+      <div class="container">
+        <p>
+          Personal notes &middot; {year}. For my own reference only — not advice,
+          and possibly out of date. Check primary sources before acting.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .notes-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: saturate(180%) blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .notes-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .notes-brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; }
+  .notes-brand__mark {
+    display: grid;
+    place-items: center;
+    width: 30px; height: 30px;
+    color: var(--navy);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    font-size: 0.95rem;
+  }
+  .notes-brand__text { color: var(--navy); }
+  .notes-nav { display: flex; gap: 1.5rem; }
+  .notes-nav a { font-weight: 500; color: var(--slate); font-size: 0.95rem; }
+  .notes-nav a:hover { color: var(--navy); }
+
+  .notes-main { padding: 3rem 0 4rem; }
+  .notes-container { max-width: 760px; }
+  .notes-container .lead { margin-bottom: 2.5rem; }
+
+  .note-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.25rem; }
+  .note-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .note-card:hover { transform: translateY(-2px); border-color: var(--gold); }
+  .note-card__link { display: block; padding: 1.5rem 1.75rem; color: inherit; }
+  .note-card__meta { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.6rem; }
+  .note-card__date { color: var(--slate); font-size: 0.82rem; }
+  .note-card__title { margin: 0 0 0.4rem; font-size: 1.25rem; }
+  .note-card__summary { color: var(--slate); margin: 0 0 0.85rem; font-size: 0.97rem; }
+  .note-card__more { color: var(--gold); font-weight: 600; font-size: 0.9rem; }
+
+  .notes-tag {
+    background: rgba(194, 161, 77, 0.14);
+    color: var(--gold);
+    font-weight: 600;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem;
+  }
+
+  .notes-footer {
+    border-top: 1px solid var(--line);
+    padding: 2rem 0;
+    color: var(--slate);
+  }
+  .notes-footer p { margin: 0; font-size: 0.85rem; max-width: 70ch; }
+</style>
