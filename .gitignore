@@ -1,12 +1,13 @@
 # build output
+build/
 dist/
-.output/
+.wrangler/
+
+# react-router generated types
+.react-router/
 
 # dependencies
 node_modules/
-
-# generated types
-.astro/
 
 # logs
 npm-debug.log*
@@ -14,7 +15,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# environment variables
+# local secrets / environment variables
+.dev.vars
 .env
 .env.production
 
